@@ -1,0 +1,28 @@
+﻿
+@{
+    ViewBag.Title = "PDFViewer";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.2.2/pdf.js"></script>
+<script>
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.2.2/pdf.worker.js';
+</script>
+
+
+<br />
+<h2>PDFViewer</h2>
+<div id="example">
+    @(Html.Kendo().PDFViewer().Name("pdfviewer")
+        .PdfjsProcessing(pdf => pdf.File(Url.Action("GetPDFFile", "FileManagerData")))
+        //.PdfjsProcessing(pdf => pdf.File(Url.Content("~/Content/web/pdfViewer/PCFS.pdf")))
+        .Height(1200)
+    )
+</div>
+
+<style>
+    html body #pdfviewer {
+        width: 100% !important;
+    }
+</style>

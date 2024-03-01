@@ -1,0 +1,19 @@
+﻿@model ITHELPDESK.Entity.tbCardTaskHQ
+
+<style>
+    .k-input {
+        margin-bottom: 10px;
+    }
+</style>
+
+@Html.LabelFor(m => m.TaskID)
+@Html.Kendo().TextBoxFor(m => m.TaskID)
+
+@Html.LabelFor(m => m.TaskName)
+@Html.Kendo().TextBoxFor(m => m.TaskName)
+
+@Html.LabelFor(m => m.Description)
+@Html.Kendo().TextAreaFor(m => m.Description).Rows(5)
+
+
+

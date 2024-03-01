@@ -1,0 +1,494 @@
+﻿
+@{
+    ViewBag.Title = "TestAppLayout";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+
+
+<style>
+    .customAD {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .center {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .cards-container {
+        width: 600px;
+        margin: 20px auto 20px auto;
+    }
+
+    #window_wnd_title {
+        color: #dc3545;
+    }
+
+    @@media only screen and (max-width: 638px) {
+        .cards-container {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+    }
+</style>
+
+<div class="customAD" style="padding-top: 54px;">
+
+    <div style="text-align: center">
+        <label for="UsersAD">AD SAM ACCOUNT :</label>
+        @(Html.Kendo().DropDownList()
+          .Name("UsersAD")
+          .Height(400)
+          .FillMode(FillMode.Flat)
+          .HtmlAttributes(new { style = "width: 300px;" })
+          .OptionLabel("Select user from Active Directory...")
+          .DataTextField("DisplayDropdown")
+          .DataValueField("samAccount")
+          .Filter("contains")
+          .DataSource(source => {
+              source.Read(read =>
+              {
+                  read.Action("GetUsersAD", "AD");
+              })
+              .ServerFiltering(false);
+          })
+          .Events(e => { e.Select("onSelect"); })
+        )
+        @(Html.Kendo().Button()
+            .Name("UnlockADButton")
+            .ThemeColor(ThemeColor.Tertiary)
+            .HtmlAttributes(new { type = "button" })
+            .Icon("unlock")
+            .Content("Unlock"))
+    </div>
+</div>
+
+@*<div style="text-align: center; margin-top: 40px;">
+        <p>
+            FirstName : <span id="fname" style="color: green"></span> &nbsp;&nbsp;&nbsp; LastName : <span id="lname" style="color: green"></span>
+        </p>
+        <p>
+            Principal Name : <span id="pname" style="color: green"></span>
+        </p>
+        <p>
+            SAM Account : <span id="sname" style="color: green"></span>
+        </p>
+        <p>
+            Department : <span id="dname" style="color: green"></span>
+        </p>
+        <p>
+            Password Last Set : <span id="pwdname" style="color: green"></span> &nbsp;&nbsp;&nbsp; Status : <span id="statusname"></span>
+        </p>
+        <p id="actionReset">
+            Action : &nbsp;&nbsp; <span>
+                @(Html.Kendo().Button()
+                .Name("ResetPassword")
+                .ThemeColor(ThemeColor.Error)
+                .HtmlAttributes(new { type = "button" })
+                .Icon("exclamation-circle")
+                .Content("ResetPassword")
+                .Events(e => e.Click("OpenWindow"))
+        )
+            </span>
+            <span>
+                @(Html.Kendo().Button()
+                .Name("DisabledBtn")
+                .ThemeColor(ThemeColor.Error)
+                .HtmlAttributes(new { type = "button" })
+                .Icon("exclamation-circle")
+                .Content("Disable User")
+                .Events(e => e.Click("OnDisable"))
+        )
+            </span>
+            <span>
+                @(Html.Kendo().Button()
+                .Name("EnableBtn")
+                .ThemeColor(ThemeColor.Success)
+                .HtmlAttributes(new { type = "button" })
+                .Icon("exclamation-circle")
+                .Content("Enable User")
+                .Events(e => e.Click("OnEnable"))
+        )
+            </span>
+        </p>
+    </div>*@
+
+<div>
+    <div class="cards-container">
+        <div class="k-card">
+            <div class="k-card-header">
+                <h5 class="k-card-title">User Information</h5>
+            </div>
+            <div class="k-card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>
+                            FirstName : <span id="fname" style="color: green"></span> &nbsp;&nbsp;&nbsp; LastName : <span id="lname" style="color: green"></span>
+                        </p>
+                        <p>
+                            Principal Name : <span id="pname" style="color: green"></span>
+                        </p>
+                        <p>
+                            SAM Account : <span id="sname" style="color: green"></span>
+                        </p>
+                        <p>
+                            Department : <span id="dname" style="color: green"></span>
+                        </p>
+                        <p>
+                            Password Last Set : <span id="pwdname" style="color: green"></span> &nbsp;&nbsp;&nbsp; Status : <span id="statusname"></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            @*<div class="k-card-actions">
+                    <span class="k-button k-button-flat-primary k-button-flat k-button-md k-rounded-md">Map</span>
+                    <span class="k-button k-button-flat-primary k-button-flat k-button-md k-rounded-md">Weather</span>
+                </div>*@
+            <div class="k-card-footer">
+
+                @(Html.Kendo().Button()
+                .Name("ResetPassword")
+                .ThemeColor(ThemeColor.Error)
+                .HtmlAttributes(new { type = "button" })
+                .Icon("exclamation-circle")
+                .Content("ResetPassword")
+                .Events(e => e.Click("OpenWindow")))
+                @(Html.Kendo().Button()
+                .Name("DisabledBtn")
+                .ThemeColor(ThemeColor.Error)
+                .HtmlAttributes(new { type = "button" })
+                .Icon("exclamation-circle")
+                .Content("Disable User")
+                .Events(e => e.Click("OnDisable")))
+                @(Html.Kendo().Button()
+                .Name("EnableBtn")
+                .ThemeColor(ThemeColor.Success)
+                .HtmlAttributes(new { type = "button" })
+                .Icon("exclamation-circle")
+                .Content("Enable User")
+                .Events(e => e.Click("OnEnable")))
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@(Html.Kendo().Window()
+    .Name("window")
+    .Title("Reset Password")
+    .Content(@<text>
+        <div>
+            <img class="center" src="~/Images/reset-password.png" height="100" width="100" />
+        </div>
+        <br />
+            <div>
+                <input type="password" placeholder="New Password" class="form-control" id="newPassword1" />
+                <br />
+                <input type="password" placeholder="Confirm New Password" class="form-control" id="newPassword2" />
+                <br />
+                <input type="checkbox" onclick="viewPassword()"/> Show Password
+            </div>
+            <hr />
+            <button id="resetBtn" type="button" style="width: 40%;" class="btn btn-primary">Reset</button>
+            <button type="button" style="width: 40%;float: right;" class="btn btn-danger" onclick="CloseWindow()">Close</button>
+
+    </text>)
+    .Draggable()
+    .Resizable()
+    .Visible(false)
+    .Width(400)
+    .Actions(actions => actions.Pin().Maximize())
+    //.Events(ev => ev.Close("CloseWindow"))
+)
+
+
+<div>
+    @(Html.Kendo().Grid<ITHELPDESK.Controllers.ADController.AD_Details>()
+    .Name("ADGrid")
+    .Columns(columns =>
+    {
+        columns.Bound(c => c.DC_Name).Title("DC_Name").Width(200);
+        columns.Bound(c => c.Site).Title("Site").Width(200);
+        columns.Bound(c => c.User_State).Width(200);
+        columns.Bound(c => c.Bad_Pwd_Count).Width(200).HtmlAttributes(new { style = "color : red;" });
+    })
+    .Pageable()
+    .Sortable(sortable =>
+    {
+        sortable.SortMode(GridSortMode.SingleColumn);
+    })
+    .AutoBind(false)
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .ServerOperation(false)
+        .PageSize(10)
+        .Model(model => { model.Id(p => p.DC_Name); })
+        .Read(read => read.Action("GetUserFromAllDomain", "AD").Data("additionalData"))
+    )
+    )
+</div>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+
+    $(document).ready(function () {
+        //$('#actionReset').hide();
+        $('#ResetPassword').hide();
+        $('#DisabledBtn').hide();
+        $('#EnableBtn').hide();
+    })
+
+    function OpenWindow() {
+        $("#window").data("kendoWindow").open();
+    }
+
+    function CloseWindow() {
+        $('#newPassword1').val('');
+        $('#newPassword2').val('');
+
+        $("#window").data("kendoWindow").close();
+    }
+
+
+
+    function OnDisable() {
+        var samAccText = $('#UsersAD').val();
+
+        if (samAccText !== '') {
+            Swal.fire({
+            title: 'Comfirmation ?',
+            text: 'ต้องการ disable รหัส ' + samAccText + ' ใช่หมือไร่ ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '@Url.Action("DisableUser", "AD")',
+                    type: 'GET',
+                    data: { "samAccount": samAccText },
+                    success: function (response) {
+                        Swal.fire({
+                            position: 'center',
+                            icon: 'success',
+                            title: response.message,
+                            showConfirmButton: false,
+                            timer: 1800
+                        }).then(() => { window.location.reload(); })
+                    }
+                })
+            }
+        })
+        } else {
+            Swal.fire({
+                title: 'Please select user ..',
+                icon: 'warning',
+            })
+        }
+    }
+
+    function OnEnable() {
+        var samAccText = $('#UsersAD').val();
+
+        if (samAccText !== '') {
+            Swal.fire({
+            title: 'Comfirmation ?',
+            text: 'ต้องการ enable รหัส ' + samAccText + ' ใช่หมือไร่ ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '@Url.Action("EnableUser", "AD")',
+                    type: 'GET',
+                    data: { "samAccount": samAccText },
+                    success: function (response) {
+                        Swal.fire({
+                            position: 'center',
+                            icon: 'success',
+                            title: response.message,
+                            showConfirmButton: false,
+                            timer: 1800
+                        }).then(() => { window.location.reload(); })
+                    }
+                })
+            }
+        })
+        } else {
+            Swal.fire({
+                title: 'Please select user ..',
+                icon: 'warning',
+            })
+        }
+    }
+
+
+    function viewPassword() {
+        var p1 = document.getElementById("newPassword1");
+        var p2 = document.getElementById("newPassword2");
+
+        if (p1.type === "password" && p2.type === "password") {
+            p1.type = "text";
+            p2.type = "text";
+        } else {
+            p1.type = "password";
+            p2.type = "password";
+        }
+    }
+
+    $('#resetBtn').click(function () {
+        var new_password_1_value = $('#newPassword1').val();
+        var new_password_2_value = $('#newPassword2').val();
+        var samAccText = $('#UsersAD').val();
+
+        debugger;
+        if (samAccText !== '' && new_password_1_value !== '' && new_password_2_value !== '') {
+            Swal.fire({
+            title: 'Comfirmation ?',
+            text: 'ต้องการรีเซ็ตรหัส ' + samAccText + ' ใช่หมือไร่ ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                if (new_password_1_value.trim() === new_password_2_value.trim()) {
+                    $.ajax({
+                        url: '@Url.Action("ResetPassword","AD")',
+                        type: 'GET',
+                        data: { 'samAccount': samAccText, 'newPassword': new_password_1_value.trim() },
+                        success: function (response) {
+                            if (response.result === true) {
+                                Swal.fire({
+                                    position: 'center',
+                                    icon: 'success',
+                                    title: response.message,
+                                    showConfirmButton: false,
+                                    timer: 1800
+                                }).then(() => { window.location.reload(); })
+                            } else {
+                                Swal.fire({
+                                    title: response.error,
+                                    icon: 'warning',
+                                })
+                            }
+                        }
+                    })
+                    } else {
+                        Swal.fire({
+                            title: 'Password not compare ..',
+                            icon: 'warning',
+                        })
+                    }
+            }
+        })
+        } else {
+            Swal.fire({
+                title: 'Please select user / fill password ..',
+                icon: 'warning',
+            })
+        }
+    })
+
+
+    $('#UnlockADButton').click(function () {
+        var samAccText = $('#UsersAD').val();
+
+        if (samAccText !== '') {
+            Swal.fire({
+            title: 'Comfirmation ?',
+            text: 'ต้องการปลดล็อครหัส ' + samAccText + ' ใช่หมือไร่ ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '@Url.Action("UnlockUserFromAllAD", "AD")',
+                    type: 'GET',
+                    data: { "samAccount": samAccText },
+                    success: function (response) {
+                        Swal.fire({
+                            position: 'center',
+                            icon: 'success',
+                            title: response.message,
+                            showConfirmButton: false,
+                            timer: 1800
+                        }).then(() => { window.location.reload(); })
+                    }
+                })
+            }
+        })
+        } else {
+            Swal.fire({
+                title: 'Please select user ..',
+                icon: 'warning',
+            })
+        }
+
+    })
+
+    function additionalData(e) {
+        var value = $("#UsersAD").data("kendoDropDownList").value();
+        return { username: value };
+    }
+
+
+    function onSelect(e) {
+
+        $('#fname').text(e.dataItem.FirstName === '' ? '--------' : e.dataItem.FirstName);
+        $('#lname').text(e.dataItem.LastName === '' ? '--------' : e.dataItem.LastName);
+        $('#pname').text(e.dataItem.principalName === '' ? '--------' : e.dataItem.principalName);
+        $('#sname').text(e.dataItem.samAccount === '' ? '--------' : e.dataItem.samAccount);
+        $('#dname').text(e.dataItem.Department === '' ? '--------' : e.dataItem.Department);
+        $('#pwdname').text(e.dataItem.PwdLastSet);
+        $('#statusname').text(e.dataItem.status);
+
+        $('#actionReset').show();
+        $('#ResetPassword').show();
+
+
+        if (e.dataItem.status === 'Enable') {
+            $('#EnableBtn').hide();
+            $('#DisabledBtn').show();
+        } else {
+            $('#DisabledBtn').hide();
+            $('#EnableBtn').show();
+        }
+
+
+        var statusName = $('#statusname');
+        if (statusName.text() === 'Enable') {
+            statusName.attr('style', 'color: green');
+        } else {
+            statusName.attr('style', 'color: red');
+        }
+
+        var pwdname = $('#pwdname');
+        if (pwdname.text() < 90) {
+            pwdname.attr('style', 'color: green');
+        } else {
+            pwdname.attr('style', 'color: red');
+        }
+
+        //var grid = $("#ADGrid").data("kendoGrid");
+        //grid.dataSource.read();
+
+        $.get('@Url.Action("GetUserFromAllDomain", "AD")', { username: e.dataItem.samAccount }, function (data) {
+            var grid = $("#ADGrid").data("kendoGrid");
+            grid.dataSource.read();
+        })
+    }
+</script>

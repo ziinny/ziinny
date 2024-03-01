@@ -1,0 +1,176 @@
+﻿
+@{
+    ViewBag.Title = "TestPage";
+    Layout = null;
+
+    IList<int> pages = new List<int>();
+    pages.Add(15);
+    pages.Add(50);
+    pages.Add(100);
+}
+
+<title>@ViewBag.Title - IT Management KSP</title>
+<link rel="shortcut icon" href="~/Content/shared/Images/favicon.ico">
+<link href="https://cdn.kendostatic.com/2022.3.1109/styles/kendo.bootstrap-main-dark.min.css" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Content/bootstrap.min.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" type="text/css" />
+<script src="https://cdn.kendostatic.com/2022.3.1109/js/jquery.min.js"></script>
+<script src="https://cdn.kendostatic.com/2022.3.1109/js/jszip.min.js"></script>
+<script src="https://cdn.kendostatic.com/2022.3.1109/js/kendo.all.min.js"></script>
+<script src="https://cdn.kendostatic.com/2022.3.1109/js/kendo.aspnetmvc.min.js"></script>
+<script src="~/Scripts/kendo-ui-license.js"></script>
+
+
+<h2>TestPage</h2>
+
+<style>
+    .k-grid .k-grid-search {
+        display: flex;
+        margin-left: auto;
+        margin-right: 0;
+        width: 15em;
+    }
+
+    .div-center {
+        display: flex;
+        justify-content: center;
+    }
+
+    .k-grid {
+        font-size: 14px;
+    }
+
+        .k-grid td {
+            line-height: 1em;
+        }
+
+    .k-grid-header thead {
+        font-size: 12px;
+    }
+</style>
+
+
+<body class="k-content">
+    <div class="container-fluid">
+        @*<div class="div-center">
+                @(Html.Kendo().Grid<dynamic>()
+                .Name("grid")
+                .Columns(columns =>
+                {
+                    for (int i = 1; i <= 500; i++)
+                    {
+                        columns.Bound("Field" + i.ToString()).Width(120);
+                    }
+                })
+                .ToolBar(t => { t.Excel(); t.Search(); })
+                .Excel(excel => excel.FileName("FG_ACC.xlsx").AllPages(true))
+                .Pageable()
+                .Sortable()
+                .Filterable()
+                .Navigatable()
+                .ColumnMenu()
+                .Scrollable(s => s.Virtual(GridVirtualizationMode.Columns).Height("auto"))
+                .HtmlAttributes(new { style = "width:1300px" })
+                .DataSource(dataSource => dataSource
+                    .Ajax()
+                    .PageSize(12)
+                    .Read(read => read.Action("Column_Read", "AD"))
+                 )
+            )
+            </div>*@
+
+        <div class="div-center">
+            @(Html.Kendo().Grid<ITHELPDESK.Controllers.ADController.FG_ACC_Diff>()
+            .Name("grid")
+            .Columns(columns =>
+            {
+                int i = 1;
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+                columns.Bound(p => p.GrowerID).Title("field" + (i++).ToString()).Width(110);
+            })
+            .ToolBar(t => { t.Excel(); t.Search(); })
+            .Excel(excel => excel.FileName("FG_ACC.xlsx").AllPages(true))
+            .Pageable(p => p.ButtonCount(5).Refresh(true).PageSizes(pages))
+            .Sortable()
+            .Filterable()
+            .Navigatable()
+            .ColumnMenu()
+            .Scrollable(s => s.Virtual(GridVirtualizationMode.RowsAndColumns).Height("auto"))
+            .HtmlAttributes(new { style = "width: 90%;" })
+            .DataSource(dataSource => dataSource
+                .Ajax()
+                .PageSize(15)
+                .Read(read => read.Action("Column_Read", "AD"))
+             )
+        )
+        </div>
+
+    </div>
+</body>
+
+
+

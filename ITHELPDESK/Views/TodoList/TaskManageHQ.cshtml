@@ -1,0 +1,174 @@
+﻿
+@{
+    ViewBag.Title = "TaskManageHQ";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+    string[] pageSizes = { "15", "50", "All" };
+}
+<style>
+    .container {
+        margin-top: 20px;
+    }
+
+    .k-grid-actions {
+        display: inline-block;
+        margin-left: 5px;
+    }
+
+    .k-grid a {
+        margin-left: 5px;
+    }
+
+    .swal2-popup {
+        grid-row: 1 !important;
+    }
+
+    .divButton {
+        margin-bottom: 10px;
+        text-align: right;
+    }
+
+    button .k-button-text {
+        position: relative;
+        visibility: hidden;
+    }
+
+        button .k-button-text:after {
+            content: "Create";
+            position: absolute;
+            visibility: visible;
+            left: 0;
+            top: 0;
+        }
+
+    .k-grid .k-grid-search {
+        display: flex;
+        margin-left: auto;
+        margin-right: 0;
+    }
+
+    div.k-grid td,
+    .k-grid td.k-command-cell {
+        padding-top: 2px;
+        padding-bottom: 2px;
+        line-height: 1;
+    }
+
+        .k-grid td.k-command-cell .k-button {
+            margin: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            line-height: 1;
+            height: auto; /* for icon buttons */
+        }
+
+
+    .k-toolbar .k-input {
+        width: 15em;
+    }
+
+    .footer {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        color: white;
+    }
+
+    .k-window-title {
+        position: relative;
+        visibility: hidden;
+    }
+
+        .k-window-title::after {
+            content: "Create task";
+            color: #0d6efd;
+            position: absolute;
+            visibility: visible;
+            left: 0;
+        }
+
+
+        .k-window-title#window_wnd_title {
+            position: relative;
+            visibility: hidden;
+        }
+
+            .k-window-title#window_wnd_title::after {
+                content: "Edit task";
+                color: #0d6efd;
+                position: absolute;
+                visibility: visible;
+                left: 0;
+            }
+</style>
+
+<div style="margin: 10px 0;">
+    <a href="@Url.Action("Index", "TodoList")" class="k-pager-refresh k-link k-button k-button-solid-base k-button-solid k-button-md k-rounded-md" title="Back to AD"><span class="k-button-icon k-icon k-font-icon k-i-chevron-left"></span></a>
+</div>
+
+@(Html.Kendo().Grid<ITHELPDESK.Entity.tbCardTaskHQ>()
+                .Name("TaskHQ")
+                .Columns(columns =>
+                {
+                    columns.Bound(p => p.TaskID);
+                    columns.Bound(p => p.TaskName);
+                    columns.Bound(p => p.Description);
+                    columns.Bound(p => p.Image);
+                    columns.Command(command =>
+                    {
+                        command.Custom("TaskBoard").Text(" ").Click("gotoTaskEdit").IconClass("k-icon k-i-image-add");
+                        command.Destroy().Text(" ").HtmlAttributes(new { style = "background-color: #c0392b;" });
+                    }).Width(150);
+                })
+                .Filterable()
+                .LoaderType(GridLoaderType.LoadingPanel)
+                .Height("auto")
+                .ToolBar(toolbar => { toolbar.Create().Text("Add new"); toolbar.Search(); })
+                .Editable(editable => editable.Mode(GridEditMode.PopUp).TemplateName("CustomEditorHQ"))
+                .Pageable(p => p.PageSizes(pageSizes))
+                .Sortable()
+                .DataSource(dataSource => dataSource
+                    .Ajax()
+                    .PageSize(15)
+                    .Events(e => e.Sync("RefreshGridHQ").Error("onError"))
+                    .Model(model => model.Id(p => p.ID))
+                    .Read("TaskHQ_Read", "TodoList")
+                    .Update("Update", "TodoList")
+                    .Create("CreateTaskHQ", "TodoList")
+                    .Destroy("RemoveTaskHQ", "TodoList")
+                )
+        )
+
+
+<script>
+
+    function gotoTaskEdit(e) {
+        e.preventDefault();
+        var dataItem = $(e.target).closest('tr').children('td');
+        var computerName = dataItem[0].innerText;
+
+        window.location.href = '@Url.Action("Task","TodoList")' + '?ComputerName='+ computerName;
+    }
+
+    function RefreshGridHQ() {
+        var grid = $("#TaskHQ").data("kendoGrid");
+        grid.dataSource.read();
+    }
+
+    function onError(e, status) {
+        if (e.status == "customerror") {
+            Swal.fire({
+                title: e.errors,
+                icon: 'warning'
+            })
+        }
+        else {
+            Swal.fire({
+                title: 'Generic server error.',
+                icon: 'warning'
+            })
+        }
+    }
+
+</script>
+

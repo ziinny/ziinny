@@ -1,0 +1,33 @@
+﻿
+@{
+    ViewBag.Title = "ImageEditor";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+
+<style>
+    .k-imageeditor {
+        margin: 0 auto;
+    }
+</style>
+
+<br />
+<h2>ImageEditor</h2>
+
+<div>
+    @(Html.Kendo().ImageEditor()
+        .Name("imageEditor")
+        .Height(900)
+        .Width(1400)
+        .SaveAs(s=>s.FileName("image_edited.png"))
+    //.ImageUrl(Url.Content("~/content/shared/images/photos/2.jpg"))
+    )
+</div>
+
+<script>
+        $(document).ready( function(){
+            var imageEditor = $("#imageEditor").getKendoImageEditor();
+            imageEditor.one("imageRendered",function(){
+                imageEditor.executeCommand({ command: "ZoomImageEditorCommand", options: imageEditor.getZoomLevel() - 0.2 });
+            });
+        });
+</script>

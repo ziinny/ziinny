@@ -1,0 +1,209 @@
+﻿
+@{
+    Layout = null;
+
+    string cookieName = "";
+    //HttpContext context = HttpContext.Current;
+    //if (Context.Request.Cookies["Username"] != null)
+    //{
+    //    cookieName = ITHELPDESK.CookieExtension.CookieManage.decryptedCookie(context.Request.Cookies["Username"].Value);
+    //    cookieName = char.ToUpper(cookieName[0]) + cookieName.Substring(1);
+    //}
+    //else
+    //{
+    //    Response.Redirect(Url.Action("LoginPage", "Login"));
+    //}
+    if (User.Identity.IsAuthenticated)
+    {
+        cookieName = char.ToUpper(User.Identity.Name[0]) + User.Identity.Name.Substring(1);
+    }
+
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewBag.Title - IT Management KSP</title>
+    <link rel="shortcut icon" href="~/Content/shared/Images/favicon.ico">
+    <link href="https://cdn.kendostatic.com/2022.3.1109/styles/kendo.bootstrap-main-dark.min.css" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/bootstrap.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.kendostatic.com/2022.3.1109/js/jquery.min.js"></script>
+    <script src="https://cdn.kendostatic.com/2022.3.1109/js/jszip.min.js"></script>
+    <script src="https://cdn.kendostatic.com/2022.3.1109/js/kendo.all.min.js"></script>
+    <script src="https://cdn.kendostatic.com/2022.3.1109/js/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Scripts/kendo-ui-license.js"></script>
+    <script src="@Url.Content("~/Scripts/bootstrap.min.js")"></script>
+
+</head>
+
+<body class="k-content">
+
+    <div>
+        <div class="customContainer wide">
+            @(Html.Kendo().ToolBar().HtmlAttributes(new { style = "display: block;" }).Name("toolbar").Items(items=> {
+            items.Add().Type(CommandType.Button).Icon("menu").HtmlAttributes(new { @class="k-flat"}).Click("toggleDrawer");
+            items.Add().Template("<div class='home-index' onclick='redirectToIndex()'><h3 style='margin-left: 20px; margin-right: 20px; color: #3b5998;'>KSP IT Support</h3></div>");
+            items.Add().Type(CommandType.Button).Text("Log Off").Icon("logout").Id("LogOut").HtmlAttributes(new { style = "float: right;" }).Url(Url.Action("SignOut", "Login"));
+            items.Add().Template("<h3>" + cookieName + "</h3>").HtmlAttributes(new { style = "float: right; margin-right: 20px;" });
+        }))
+            @(Html.Kendo().Drawer()
+            .Name("drawer")
+                .TemplateId("drawerTemplate")
+                .Mode("push")
+                .Mini(true)
+                .Position("left")
+                .MinHeight(600)
+                .SwipeToOpen(false)
+                .Content(@<text>
+                <div>
+                    <main>
+                        <div class="container-fluid">
+                            @RenderBody()
+                        </div>
+                    </main>
+                </div>
+            </text>)
+        .Events(x => x.ItemClick("onItemClick")))
+        </div>
+
+        <script>
+            function toggleDrawer() {
+                var drawerInstance = $("#drawer").data().kendoDrawer;
+                var drawerContainer = drawerInstance.drawerContainer;
+                if (drawerContainer.hasClass("k-drawer-expanded")) {
+                    drawerInstance.hide();
+                } else {
+                    drawerInstance.show();
+                }
+            }
+
+            function onItemClick(e) {
+
+                var targetPage = e.item.find("a").attr("href");
+                var target_newPage = e.item.find("a").attr("target");
+
+                if (target_newPage === '_blank') {
+                    window.open(targetPage, '_blank');
+                } else {
+                    window.location.href = targetPage;
+                }
+
+                if (!e.item.hasClass("k-drawer-separator")) {
+                    e.sender.drawerContainer.find("#drawer-content > div").addClass("hidden");
+                    e.sender.drawerContainer.find("#drawer-content").find("#" + e.item.find(".k-item-text").attr("data-id")).removeClass("hidden");
+                }
+            }
+
+        </script>
+
+        <style>
+
+            .home-index {
+                cursor: pointer;
+            }
+
+            a#LogOut:hover {
+                color: unset;
+                border-color: #DC143C;
+                background-color: #DC143C;
+            }
+
+            .k-toolbar-item {
+                float: left;
+            }
+
+            .k-flat {
+                float: left;
+            }
+
+            #drawer-content li {
+                font-size: 1.2em;
+                padding-left: .89em;
+                background: 0 0;
+                border-radius: 0;
+                border-width: 0 0 1px;
+                border-color: rgba(33, 37, 41, 0.125);
+                border-style: solid;
+                line-height: 1.5em;
+                padding: 1.09em .84em 1.23em .84em;
+            }
+
+                #drawer-content li:last-child {
+                    border: 0;
+                }
+
+            .hidden {
+                display: none;
+            }
+
+            .customContainer {
+                width: 100%;
+            }
+
+
+            .k-toolbar .k-icon {
+                font-size: 18px;
+            }
+
+            li a {
+                color: white;
+                text-decoration: unset;
+            }
+
+                li a:hover {
+                    color: white;
+                }
+        </style>
+    </div>
+
+
+
+    <footer class="footer text-center d-flex align-items-center">
+        <div class="container-fluid">
+            <p class="text-muted">Copyright © 2022 - @DateTime.Now.Year Developed by Nathapon :)</p>
+        </div>
+    </footer>
+
+
+    <script id="drawerTemplate" type="text/html">
+        <ul>
+            <li data-role='drawer-item' @*class='k-selected'*@><span class='k-icon k-font-icon k-i-unlock'></span><span class='k-item-text' data-id='Unlock'><a href="@Url.Action("ADIndex","AD")">Unlock UserAD</a></span></li>
+            <li data-role='drawer-separator'></li>
+            <li data-role='drawer-item'><span class='k-icon k-font-icon k-i-list-unordered'></span><span class='k-item-text' data-id='taskboard'><a href="@Url.Action("Index","TodoList")">Todo List</a></span></li>
+            <li data-role='drawer-item'><span class='k-icon k-font-icon k-i-folder-up k-i-bell'></span><span class='k-item-text' data-id='Files'><a href="@Url.Action("FilesManage","FileManagerData")">Files Manage</a></span></li>
+            <li data-role='drawer-item'><span class='k-icon k-font-icon k-i-download'></span><span class='k-item-text' data-id='Installer'><a href="@Url.Action("Link_Installer","Grid")">Installer</a></span></li>
+            <li data-role='drawer-item'><span class='k-icon k-font-icon k-i-file-pdf'></span><span class='k-item-text' data-id='PDFViewer'><a href="@Url.Action("PDFViewer","FileManagerData")">PDFViewer</a></span></li>
+            <li data-role='drawer-item'><span class='k-icon k-font-icon k-i-image'></span><span class='k-item-text' data-id='ImageEditor'><a href="@Url.Action("ImageEditor","FileManagerData")">Image Editor</a></span></li>
+            <li data-role='drawer-item'><span class='k-icon k-font-icon k-i-signature'></span><span class='k-item-text' data-id='SignPdf'><a href="@Url.Action("Sign_Pdf_Document","Signature")">Signature</a></span></li>
+            <li data-role='drawer-item'><span class='k-icon k-font-icon k-i-pin'></span><span class='k-item-text' data-id='Tracking'><a href="#">KSP Tracking</a></span></li>
+            <li data-role='drawer-separator'></li>
+            <li data-role='drawer-item'><span class='k-icon k-font-icon k-i-star-outline k-i-bookmark-outline'></span><span class='k-item-text' data-id='ITMHR'><a href="http://kspsqls/itmhr" target="_blank">ITM_HR</a></span></li>
+        </ul>
+    </script>
+    @* list-unordered-square *@
+
+
+    <script>
+        $(document).ready(function () {
+            $("#responsive-panel").kendoResponsivePanel({
+                breakpoint: 768,
+                autoClose: false,
+                orientation: "top"
+            });
+        });
+
+        function redirectToIndex() {
+            window.location.href = '@Url.Action("Index", "Home")';
+        }
+
+        function onclick(e) {
+            $("#responsive-panel").getKendoResponsivePanel().toggle();
+        }
+
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,91 @@
+﻿@model IEnumerable<ITHELPDESK.Controllers.TodoListController.Information>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+    List<int> pageSizes = new List<int> { 10, 15, 20 };
+}
+
+<style>
+    .container {
+        margin-top: 20px;
+    }
+
+    .k-grid-actions {
+        display: inline-block;
+        margin-left: 5px;
+    }
+
+    .k-grid a {
+        margin-left: 5px;
+    }
+
+    .divButton{
+        margin: 10px 0;
+    }
+
+    .divButton button{
+        margin-right: 10px;
+    }
+</style>
+
+<div class="container">
+    <div class="divButton">
+        @(Html.Kendo().Button()
+        .Name("taskManageButton")
+        .HtmlAttributes( new {type = "button" } )
+        .Content("Task Manage")
+        .Events(e => e.Click("onClick"))
+        )
+        
+    </div>
+    <div>
+        @(Html.Kendo().Grid(Model)
+    .Name("Grid")
+    .Columns(columns => {
+        columns.Bound(p => p.ComputerName);
+        columns.Bound(p => p.Username);
+        columns.Bound(p => p.Tasks);
+        columns.Bound(p => p.Location);
+        columns.Command(command =>
+        {
+            command.Custom("TaskBoard").Text("").Click("gotoTaskBoard").IconClass("k-icon k-i-list-unordered");
+            //command.Edit().Text("").HtmlAttributes(new { style = "background-color: #1877f2;" });
+            command.Destroy().Text("").HtmlAttributes(new { style = "background-color: #c0392b;" });
+        }).Width(300);
+    })
+    .Filterable()
+    .LoaderType(GridLoaderType.Skeleton)
+    .Height("auto")
+    .ToolBar(toolbar => toolbar.Create().Text("Add new"))
+    .Editable(editable => editable.Mode(GridEditMode.PopUp))
+    .Pageable(p => p.PageSizes(pageSizes))
+    .Sortable()
+    .DataSource(dataSource => dataSource
+        .Server()
+        .Model(model => model.Id(p => p.ComputerName))
+        .Read("Index", "TodoList")
+        .Update("Update", "TodoList")
+        .Create("Create", "TodoList")
+        .Destroy("Destroy", "TodoList")
+    )
+)
+    </div>
+</div>
+
+
+<script>
+
+    function onClick(e) {
+
+    }
+
+    function gotoTaskBoard(e) {
+        e.preventDefault();
+        var dataItem = $(e.target).closest('tr').children('td');
+        var computerName = dataItem[0].innerText;
+
+        window.location.href = '@Url.Action("Task","TodoList")' + '?ComputerName='+ computerName;
+    }
+
+</script>

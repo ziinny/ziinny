@@ -1,0 +1,738 @@
+﻿@{
+    ViewBag.Title = "Unlock user from AD";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+
+
+<style>
+    #tilelayout {
+        background-color: black;
+    }
+
+    .centered {
+        position: fixed;
+        top: 40%;
+        left: 48%;
+    }
+
+    .customAD {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .center {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .text-green {
+        color: #00FF40;
+    }
+
+    .text-orange {
+        color: orange;
+    }
+
+
+    #window_wnd_title {
+        color: #dc3545;
+    }
+
+    .k-list-footer {
+        text-align: center;
+        color: green;
+    }
+
+
+    .swal2-popup {
+        grid-row: 1 !important;
+    }
+
+    #ADgrid .k-grid-toolbar {
+        padding: .6em 1.3em .6em .4em;
+    }
+
+    .refreshBtnContainer {
+        display: inline-block;
+    }
+
+    .k-grid .toolbar {
+        margin-left: auto;
+        margin-right: 0;
+    }
+
+    img.user-lock {
+        height: 150px;
+        width: 300px;
+        opacity: 0.3;
+    }
+
+    div.k-card-body {
+        position: relative;
+    }
+
+
+    div.user-lock-img {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-20deg);
+    }
+
+    .centered {
+        z-index: 99999 !important;
+    }
+
+
+    @@media (max-width: 1320px) {
+        #tilelayout div.k-tilelayout-item {
+            grid-column-end: span 8 !important;
+        }
+    }
+</style>
+
+<div class="customAD" style="padding-top: 20px; padding-bottom: 20px;">
+
+    <div style="text-align: center">
+        <label for="UsersAD">AD SAM ACCOUNT :</label>
+        @(Html.Kendo().DropDownList()
+          .Name("UsersAD")
+          .Height(400)
+          .FillMode(FillMode.Flat)
+          .HtmlAttributes(new { style = "width: 300px;" })
+          .OptionLabel("Select user from Active Directory...")
+          .DataTextField("DisplayDropdown")
+          .DataValueField("samAccount")
+          .Filter("contains")
+          .FooterTemplate("Search from KSP Domain")
+          .DataSource(source => {
+              source.Read(read =>
+              {
+                  read.Action("GetUsersAD", "AD");
+              })
+              .ServerFiltering(false);
+          })
+          .Events(e => { e.Select("onSelect"); })
+        )
+        @(Html.Kendo().Button()
+            .Name("UnlockADButton")
+            .ThemeColor(ThemeColor.Tertiary)
+            .HtmlAttributes(new { type = "button" })
+            .Icon("unlock")
+            .Content("Unlock"))
+    </div>
+</div>
+
+
+<script id="card-template" type="text/x-kendo-template">
+    @*<div class="k-card">*@
+            <div class="k-card-body">
+                <div class="user-lock-img"><img class="user-lock" src="/Content/shared/Images/user_lock.png" /></div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p>
+                            FirstName : <span id="fname" class="text-green"></span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>
+                            LastName : <span id="lname" class="text-green"></span>
+                        </p>
+                    </div>
+                </div>
+                <div>
+                    <p>
+                        Principal Name : <span id="pname" class="text-green"></span>
+                    </p>
+                    <p>
+                        SAM Account : <span id="sname" class="text-green"></span>
+                    </p>
+                    <p>
+                        Department : <span id="dname" class="text-green"></span>
+                    </p>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p>
+                            Password Last Set : <span id="pwdname" class="text-green"></span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>
+                            Status : <span id="statusname" class="text-green"></span>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <p>
+                        OU : <span id="ouname" class="text-orange"></span>
+                    </p>
+                </div>
+            </div>
+
+            <hr />
+            <div @*class="k-card-footer"*@>
+
+                @(Html.Kendo().Button()
+                .Name("ResetPassword")
+                .ThemeColor(ThemeColor.Error)
+                .HtmlAttributes(new { type = "button" })
+                .Icon("exclamation-circle")
+                .Content("ResetPassword")
+                .Events(e => e.Click("OpenWindow")).ToClientTemplate())
+                @(Html.Kendo().Button()
+                .Name("DisabledBtn")
+                .ThemeColor(ThemeColor.Error)
+                .HtmlAttributes(new { type = "button" })
+                .Icon("exclamation-circle")
+                .Content("Disable User")
+                .Events(e => e.Click("OnDisable")).ToClientTemplate())
+                @(Html.Kendo().Button()
+                .Name("EnableBtn")
+                .ThemeColor(ThemeColor.Success)
+                .HtmlAttributes(new { type = "button" })
+                .Icon("exclamation-circle")
+                .Content("Enable User")
+                .Events(e => e.Click("OnEnable")).ToClientTemplate())
+            </div>
+        @*</div>*@
+</script>
+
+
+
+@(Html.Kendo().TileLayout()
+        .Name("tilelayout")
+        .Columns(8)
+        .RowsHeight("245px")
+        .Containers(c => {
+            c.Add().Header(h => h.Text("Account Information")).BodyTemplateId("card-template").ColSpan(3).RowSpan(2);
+            c.Add().Header(h => h.Text("All Domain Controller")).BodyTemplateId("grid-template").ColSpan(5).RowSpan(2);
+        })
+        .Reorderable(true)
+        .Resizable(true)
+        .Events(e=>e.Resize("onTileResize"))
+    )
+@(Html.Kendo().Window()
+    .Name("window")
+    .Title("Reset Password")
+    .Modal(true)
+    .Content(@<text>
+        <div>
+            <img class="center" src="~/Images/reset-password.png" height="100" width="100" />
+        </div>
+        <br />
+            <div>
+                <input type="password" placeholder="New Password" class="form-control" id="newPassword1" />
+                <br />
+                <input type="password" placeholder="Confirm New Password" class="form-control" id="newPassword2" />
+                <br />
+                <input type="checkbox" onclick="viewPassword()"/> Show Password
+            </div>
+            <hr />
+            <button id="resetBtn" type="button" style="width: 49%;" class="btn btn-primary">Reset</button>
+            <button type="button" style="width: 49%; float: right;" class="btn btn-danger" onclick="CloseWindow()">Close</button>
+
+    </text>)
+    .Draggable()
+    .Resizable()
+    .Visible(false)
+    .Width(400)
+    .Actions(actions => actions.Pin().Maximize())
+    //.Events(ev => ev.Close("CloseWindow"))
+)
+@(Html.Kendo().Dialog()
+        .Name("ResetDialog")
+        .Title("Confirm Reset Password !")
+        .Content("<p>ต้องการรีเซ็ตพาสเวิร์ดใช่หรือไม่ ?<p>")
+        .Width(600)
+        .Modal(true)
+        .Visible(false)
+        .Actions(actions =>
+        {
+            actions.Add().Text("OK")
+            .Primary(true)
+            .Action("onOK");
+            actions.Add()
+            .Text("Cancel");
+        })
+    )
+@(Html.Kendo().Dialog()
+        .Name("NotificationDialog")
+        .Title("Notification !")
+        .Content("<p>Password not compare !<p>")
+        .Width(600)
+        .Modal(true)
+        .Visible(false)
+        .Actions(actions =>
+        {
+            actions.Add()
+            .Text("Close");
+        })
+    )
+
+<div id="ErrorDialog"></div>
+<div class="centered">
+    @(Html.Kendo().Loader()
+                    .Name("loader")
+                    .Visible(false)
+                    .Size(LoaderSize.Large)
+                    .ThemeColor(LoaderThemeColor.Tertiary)
+                    .Type(LoaderType.ConvergingSpinner)
+            )
+</div>
+
+
+<script id="grid-template" type="text/x-kendo-template">
+    <div>
+    @(Html.Kendo().Grid<ITHELPDESK.Controllers.ADController.AD_Details>()
+    .Name("ADGrid")
+    .Columns(columns =>
+    {
+        columns.Bound(c => c.DC_Name).Title("DC_Name").Width("25%");
+        columns.Bound(c => c.Site).Title("Site").Width("25%").Media("(min-width: 575px)");
+        columns.Bound(c => c.User_State).Width("25%");
+        columns.Bound(c => c.Bad_Pwd_Count).Width("25%").HtmlAttributes(new { style = "color : red;" });
+    })
+    .ToolBar(toolbar =>
+    {
+        toolbar.Template(@<text>
+            <div class="refreshBtnContainer">
+                <a href="javascript:RefreshGrid();" class="k-pager-refresh k-link k-button k-button-solid-base k-button-solid k-button-md k-rounded-md" title="Refresh"><span class="k-button-icon k-icon k-font-icon k-i-reload"></span></a>
+            </div>
+            <div>
+                <a href="@Url.Action("LoggingPage", "AD")" class="k-pager-refresh k-link k-button k-button-solid-base k-button-solid k-button-md k-rounded-md" title="Logs"><span class="k-button-icon k-icon k-font-icon k-i-page-footer-section"></span></a>
+            </div>
+    </text>);
+    })
+    .Pageable()
+    .Sortable(sortable =>
+    {
+        sortable.SortMode(GridSortMode.SingleColumn);
+    })
+    .AutoBind(false)
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .ServerOperation(false)
+        .PageSize(12)
+        .Model(model => { model.Id(p => p.DC_Name); })
+        .Read(read => read.Action("GetUserFromAllDomain", "AD").Data("additionalData"))
+    ).ToClientTemplate()
+    )
+</div>
+</script>
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@*@if (ViewBag.UserName == "rungsuriya.bue")
+{
+    <script>
+
+        const button = document.getElementById('UnlockADButton');
+        button.addEventListener('mouseover', function () {
+            button.style.left = `${Math.ceil(Math.random() * 20)}%`;
+            button.style.top = `${Math.ceil(Math.random() * 10)}%`;
+        });
+    </script>
+}*@
+
+
+<script>
+    $(document).ready(function () {
+        $('#ResetPassword').hide();
+        $('#DisabledBtn').hide();
+        $('#EnableBtn').hide();
+
+        $("#window").data("kendoWindow").center();
+
+
+        $('.user-lock-img').hide();
+    })
+
+
+    function onTileResize(e) {
+        if (e.container) {
+            kendo.resize(e.container, true);
+        }
+    }
+
+
+    function OpenWindow() {
+        $("#window").data("kendoWindow").open();
+    }
+
+    function CloseWindow() {
+        $('#newPassword1').val('');
+        $('#newPassword2').val('');
+
+        $("#window").data("kendoWindow").close();
+        $("#ResetDialog, #NotificationDialog").data("kendoDialog").close();
+    }
+
+
+
+    function OnDisable() {
+        var samAccText = $('#UsersAD').val();
+
+        if (samAccText !== '') {
+            Swal.fire({
+            title: 'Comfirmation ?',
+            text: 'ต้องการ disable รหัส ' + samAccText + ' ใช่หมือไร่ ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                showLoader();
+
+                $.ajax({
+                    url: '@Url.Action("DisableUser", "AD")',
+                    type: 'GET',
+                    data: { "samAccount": samAccText },
+                    success: function (response) {
+                        UpdateInformation();
+                        closeLoader();
+
+                        Swal.fire({
+                            position: 'center',
+                            icon: 'success',
+                            title: response.message,
+                            showConfirmButton: false,
+                            timer: 1800
+                        });
+                    }
+                })
+            }
+        })
+        } else {
+            Swal.fire({
+                title: 'Please select user ..',
+                icon: 'warning',
+            })
+        }
+    }
+
+    function OnEnable() {
+        var samAccText = $('#UsersAD').val();
+
+        if (samAccText !== '') {
+            Swal.fire({
+            title: 'Comfirmation ?',
+            text: 'ต้องการ enable รหัส ' + samAccText + ' ใช่หมือไร่ ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                showLoader();
+
+                $.ajax({
+                    url: '@Url.Action("EnableUser", "AD")',
+                    type: 'GET',
+                    data: { "samAccount": samAccText },
+                    success: function (response) {
+                        UpdateInformation();
+                        closeLoader();
+
+                        Swal.fire({
+                            position: 'center',
+                            icon: 'success',
+                            title: response.message,
+                            showConfirmButton: false,
+                            timer: 1800
+                        });
+                    }
+                })
+            }
+        })
+        } else {
+            Swal.fire({
+                title: 'Please select user ..',
+                icon: 'warning',
+            })
+        }
+    }
+
+
+    function viewPassword() {
+        var p1 = document.getElementById("newPassword1");
+        var p2 = document.getElementById("newPassword2");
+
+        if (p1.type === "password" && p2.type === "password") {
+            p1.type = "text";
+            p2.type = "text";
+        } else {
+            p1.type = "password";
+            p2.type = "password";
+        }
+    }
+
+    $('#resetBtn').click(function () {
+        var new_password_1_value = $('#newPassword1').val();
+        var new_password_2_value = $('#newPassword2').val();
+
+        if (new_password_1_value.trim() === new_password_2_value.trim()) {
+            $("#ResetDialog").data("kendoDialog").open();
+        } else {
+            $("#NotificationDialog").data("kendoDialog").open();
+        }
+    })
+
+
+
+
+
+    function onOK(e) {
+        var new_password_1_value = $('#newPassword1').val();
+        var new_password_2_value = $('#newPassword2').val();
+        var samAccText = $('#UsersAD').val();
+
+        if (samAccText !== '' && new_password_1_value !== '' && new_password_2_value !== '') {
+            showLoader();
+
+            $.ajax({
+                        url: '@Url.Action("ResetPassword","AD")',
+                        type: 'GET',
+                        data: { 'samAccount': samAccText, 'newPassword': new_password_1_value.trim() },
+                        success: function (response) {
+                            if (response.result === true) {
+
+                                UpdateInformation();
+                                CloseWindow();
+                                closeLoader();
+
+                                Swal.fire({
+                                    position: 'center',
+                                    icon: 'success',
+                                    title: response.message,
+                                    showConfirmButton: false,
+                                    timer: 1800
+                                }).then(() => { RefreshGrid(); });
+                            } else {
+                                var textErr = '';
+                                if (response.error.includes('0x800708C5')) {
+                                    textErr = "รหัสผ่านไม่เป็นไปตามข้อกำหนดนโยบายรหัสผ่าน ตรวจสอบความยาวรหัสผ่านขั้นต่ำ ความซับซ้อนของรหัสผ่าน และข้อกำหนดประวัติรหัสผ่าน ! (Exception from HRESULT: 0x800708C5)";
+                                } else {
+                                    textErr = response.error;
+                                }
+
+                                CloseWindow();
+                                closeLoader();
+
+                                $("#ErrorDialog").kendoDialog({
+                                    title: "Error Alert !!",
+                                    content: textErr,
+                                    width: 600,
+                                    actions: [{
+                                        text: "Cancel"
+                                    }],
+                                    animation: {
+                                        open: {
+                                            effects: "fade:in"
+                                        },
+                                        close: {
+                                            effects: "fade:out"
+                                        }
+                                    }
+                                });
+                                $("#ErrorDialog").data("kendoDialog").open();
+                            }
+                        }
+                    })
+        }
+    }
+
+    function showLoader() {
+        var loader = $('#loader').data('kendoLoader');
+        loader.show();
+    }
+
+    function closeLoader() {
+        var loader = $('#loader').data('kendoLoader');
+        loader.hide();
+    }
+
+
+    $('#UnlockADButton').click(function () {
+
+        var samAccText = $('#UsersAD').val();
+
+        if (samAccText !== '') {
+            Swal.fire({
+            title: 'Comfirmation ?',
+            text: 'ต้องการปลดล็อครหัส ' + samAccText + ' ใช่หมือไร่ ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                showLoader();
+
+                $.ajax({
+                    url: '@Url.Action("UnlockUserFromAllAD", "AD")',
+                    type: 'GET',
+                    data: { "samAccount": samAccText },
+                    success: function (response) {
+                        closeLoader();
+
+                        Swal.fire({
+                            position: 'center',
+                            icon: 'success',
+                            title: response.message,
+                            showConfirmButton: false,
+                            timer: 1800
+                        }).then(() => { RefreshGrid(); })
+                    }
+                })
+            }
+        })
+        } else {
+            Swal.fire({
+                title: 'Please select user ..',
+                icon: 'warning',
+            })
+        }
+
+    })
+
+    function additionalData(e) {
+        var value = $("#UsersAD").data("kendoDropDownList").value();
+        return { username: value };
+    }
+
+
+    function RefreshGrid() {
+        var samAccount = $('#sname').text();
+
+        if (samAccount !== '') {
+            $.get('@Url.Action("GetUserFromAllDomain", "AD")', { username: samAccount }, function (data) {
+                var userIsLock = data.Data[0].IsLock;
+                if (userIsLock) {
+                    $('.user-lock-img').show();
+                } else {
+                    $('.user-lock-img').hide();
+                }
+                var grid = $("#ADGrid").data("kendoGrid");
+                grid.dataSource.read();
+            })
+        } else {
+            Swal.fire({
+                title: 'Please select user ..',
+                icon: 'warning',
+            })
+        }
+    }
+
+    async function onSelect(e) {
+
+        showLoader();
+
+        if (e.dataItem.samAccount === '') {
+            Swal.fire({
+                title: 'Please select user ..',
+                icon: 'warning',
+            })
+
+            e.preventDefault();
+            return false;
+        }
+
+         await $.get('@Url.Action("GetUserFromAllDomain", "AD")', { username: e.dataItem.samAccount }, function (data) {
+            var userIsLock = data.Data[0].IsLock;
+            if (userIsLock) {
+                $('.user-lock-img').show();
+            } else {
+                $('.user-lock-img').hide();
+            }
+            var grid = $("#ADGrid").data("kendoGrid");
+            grid.dataSource.read();
+        })
+
+
+        $('#fname').text(e.dataItem.FirstName === '' ? ' n/a ' : e.dataItem.FirstName);
+        $('#lname').text(e.dataItem.LastName === '' ? ' n/a ' : e.dataItem.LastName);
+        $('#pname').text(e.dataItem.principalName === '' ? ' n/a ' : e.dataItem.principalName);
+        $('#sname').text(e.dataItem.samAccount === '' ? ' n/a ' : e.dataItem.samAccount);
+        $('#dname').text(e.dataItem.Department === '' ? ' n/a ' : e.dataItem.Department);
+        $('#ouname').text(e.dataItem.distinguishedName === '' ? ' n/a ' : e.dataItem.distinguishedName);
+        $('#pwdname').text(e.dataItem.PwdLastSet);
+        $('#statusname').text(e.dataItem.status);
+
+        $('#actionReset').show();
+        $('#ResetPassword').show();
+
+        if (e.dataItem.status === 'Enable') {
+            $('#EnableBtn').hide();
+            $('#DisabledBtn').show();
+        } else {
+            $('#DisabledBtn').hide();
+            $('#EnableBtn').show();
+        }
+
+        var statusName = $('#statusname');
+        if (statusName.text() === 'Enable') {
+            statusName.attr('style', 'color: #00FF40');
+        } else {
+            statusName.attr('style', 'color: red');
+        }
+
+        var pwdname = $('#pwdname');
+        if (pwdname.text() < 90) {
+            pwdname.attr('style', 'color: #00FF40');
+        } else {
+            pwdname.attr('style', 'color: red');
+        }
+
+        closeLoader();
+    }
+
+    function UpdateInformation() {
+        var samAccount = $('#sname').text();
+        $.ajax({
+            url: '@Url.Action("GetUsersAD_BySamAccount", "AD")',
+            data: { "samAccount": samAccount },
+            success: function (response) {
+                if (response !== null) {
+                    $('#fname').text(response.FirstName === '' ? ' n/a ' : response.FirstName);
+                    $('#lname').text(response.LastName === '' ? ' n/a ' : response.LastName);
+                    $('#pname').text(response.principalName === '' ? ' n/a ' : response.principalName);
+                    $('#sname').text(response.samAccount === '' ? ' n/a ' : response.samAccount);
+                    $('#dname').text(response.Department === '' ? ' n/a ' : response.Department);
+                    $('#pwdname').text(response.PwdLastSet);
+                    $('#statusname').text(response.status);
+                }
+
+                if (response.status === 'Enable') {
+                    $('#EnableBtn').hide();
+                    $('#DisabledBtn').show();
+                } else {
+                    $('#DisabledBtn').hide();
+                    $('#EnableBtn').show();
+                }
+
+                var statusName = $('#statusname');
+                if (response.status === 'Enable') {
+                    statusName.attr('style', 'color: #00FF40');
+                } else {
+                    statusName.attr('style', 'color: red');
+                }
+
+                var pwdname = $('#pwdname');
+                if (response.PwdLastSet < 90) {
+                    pwdname.attr('style', 'color: #00FF40');
+                } else {
+                    pwdname.attr('style', 'color: red');
+                }
+
+            }
+        })
+    }
+</script>

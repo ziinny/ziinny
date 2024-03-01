@@ -1,0 +1,129 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+
+<style>
+    .grid-container {
+        display: grid;
+        grid-template-columns: auto auto auto auto auto;
+        padding: 50px;
+        margin: 0 5%;
+        gap: 20px;
+    }
+
+    .grid-item {
+        background-color: whitesmoke;
+        color: black;
+        font-size: 30px;
+        text-align: center;
+        height: 350px;
+        width: 100%;
+        border-radius: 10px;
+        box-shadow: 5px 8px #999;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transition: background-color 0.3s ease-in-out;
+    }
+
+        .grid-item:hover {
+            cursor: pointer;
+            background-color: #92b5c3;
+            border-color: #92b5c3;
+            color: white;
+        }
+
+        .grid-item:active {
+            background-color: #92b5c3;
+            box-shadow: 0 5px #666;
+            transform: translateY(6px);
+        }
+
+    img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 10px 10px 0 0;
+    }
+
+    h2{
+        margin-top: 10px;
+        font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    }
+
+    p.task-txt {
+        text-indent: 40px;
+        text-align: justify;
+        font-size: 12px;
+        margin: 10px 10px 0 10px;
+    }
+
+    hr{
+        margin: 0 30px;
+    }
+
+    @@media screen and (max-width: 1675px) {
+        .grid-container {
+            grid-template-columns: auto auto auto auto;
+        }
+    }
+
+    @@media screen and (max-width: 1365px) {
+        .grid-container {
+            grid-template-columns: auto auto auto;
+        }
+    }
+
+    @@media screen and (max-width: 800px) {
+        .grid-container {
+            grid-template-columns: auto;
+            margin: unset !important;
+        }
+
+        .grid-item {
+            height: auto;
+        }
+
+        p.task-txt {
+            margin-bottom: 20px;
+        }
+    }
+</style>
+
+<h1 style="text-align:center; margin-top:20px; font-weight: bold;">Select Task</h1>
+
+<div class="grid-container">
+    <div class="grid-item ADUser">
+        <img src="~/Content/web/imageCard/todolist.jpg" />
+        <h2>AD Accounts</h2>
+        <hr />
+        <p class="task-txt">Task for unlock , reset password and disable or enable user from Active Directory ..</p>
+    </div>
+    <div class="grid-item FileManage">
+        <img src="~/Content/web/imageCard/todolist.jpg" />
+        <h2>File Manage</h2>
+        <hr />
+        <p class="task-txt">Task for manage files and folders on server. You can download or upload files on this task ..</p>
+    </div>
+    <div class="grid-item TodoList">
+        <img src="~/Content/web/imageCard/todolist.jpg" />
+        <h2>Todo List</h2>
+        <hr />
+    </div>
+    <div class="grid-item Installer">
+        <img src="~/Content/web/imageCard/todolist.jpg" />
+        <h2>Install Application</h2>
+        <hr />
+    </div>
+    <div class="grid-item">
+        <img src="~/Content/web/imageCard/todolist.jpg" />
+        <h2>Waiting task</h2>
+        <hr />
+    </div>
+</div>
+
+<script>
+    $('.ADUser').click(() => { window.location.href = '@Url.Action("ADIndex","AD")'; })
+    $('.FileManage').click(() => { window.location.href = '@Url.Action("FilesManage", "FileManagerData")'; })
+    $('.TodoList').click(() => { window.location.href = '@Url.Action("Index", "TodoList")'; })
+    $('.Installer').click(() => { window.location.href = '@Url.Action("Link_Installer", "Grid")'; })
+</script>

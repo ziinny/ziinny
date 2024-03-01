@@ -1,0 +1,126 @@
+﻿@using ITHELPDESK.Models
+@using System.Web;
+@using System.Web.Mvc;
+@using System.Web.Security;
+
+@{
+    string cookieName = "";
+    HttpContext context = HttpContext.Current;
+    if (Context.Request.Cookies["Username"] != null)
+    {
+        cookieName = context.Request.Cookies["Username"].Value;
+    }
+    else
+    {
+        Response.Redirect(Url.Action("LoginPage", "Login"));
+
+    }
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewBag.Title - IT Management KSP</title>
+    <link rel="shortcut icon" href="~/Content/shared/Images/favicon.ico">
+    <link href="https://cdn.kendostatic.com/2022.3.1109/styles/kendo.bootstrap-main-dark.min.css" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/bootstrap.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.kendostatic.com/2022.3.1109/js/jquery.min.js"></script>
+    <script src="https://cdn.kendostatic.com/2022.3.1109/js/jszip.min.js"></script>
+    <script src="https://cdn.kendostatic.com/2022.3.1109/js/kendo.all.min.js"></script>
+    <script src="https://cdn.kendostatic.com/2022.3.1109/js/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Scripts/kendo-ui-license.js"></script>
+    <script src="@Url.Content("~/Scripts/bootstrap.min.js")"></script>
+    <style>
+        #cookiename {
+            margin-left: auto;
+        }
+
+        #signout {
+            margin-right: 50px;
+        }
+    </style>
+</head>
+
+<body class="k-content">
+    @*<nav class="navbar navbar-dark bg-dark">
+            <div class="container-fluid d-flex justify-content-between p-0">
+                <h1 style="margin-left: 20px;" class="navbar-brand d-flex align-items-center">IT KSP</h1>
+                <button id="configure" class="k-rpanel-toggle k-button k-button-md k-rounded-md k-icon-button k-button-solid-primary btn-toggle">
+                    <span class="k-button-icon k-icon k-i-menu"></span>
+                </button>
+            </div>
+        </nav>*@
+
+
+    @*<div id="responsive-panel" class="navbar navbar-dark bg-light">
+            @(Html.Kendo().Menu()
+                .Name("Menu")
+                .HtmlAttributes(new { style="width:100%" })
+                .Items(items =>
+                {
+                    items.Add().Text("IT KSP").Enabled(true).Action("FilesManage", "FileManagerData").ImageUrl(Url.Content("~/Content/shared/Images/onespoon.png"));
+                    items.Add().Text("Menu")
+                       .Items(children =>
+                       {
+                           //children.Add().Text("File Repo").Action("FilesRepository", "Upload");
+                           children.Add().Text("Files Manage").Action("FilesManage", "FileManagerData");
+                           children.Add().Text("Installer").Action("Link_Installer", "Grid");
+                           children.Add().Text("PFD Viewer").Action("PDFViewer", "FileManagerData");
+                       });
+                })
+            )
+        </div>*@
+
+    <div>
+        @(Html.Kendo().Menu()
+            .Name("Menu")
+            .HtmlAttributes(new { style="width:100%" })
+            .Items(items =>
+            {
+                items.Add().Text("IT KSP").Enabled(true).Action("FilesManage", "FileManagerData").ImageUrl(Url.Content("~/Content/shared/Images/onespoon.png"));
+                items.Add().Text("Menu")
+                   .Items(children =>
+                   {
+                       children.Add().Text("Unlock UserAD").Action("ADIndex", "AD").ImageUrl("~/Content/shared/Icons/unlock.png");
+                       children.Add().Text("Files Manage").Action("FilesManage", "FileManagerData").ImageUrl("~/Content/shared/Icons/folder.png");
+                       children.Add().Text("KPGroup ITMHR").Url("http://kspsqls/itmhr").LinkHtmlAttributes(new { target = "_blank" }).ImageUrl("~/Content/shared/Icons/onespoonn.png");
+                       children.Add().Text("Installer").Action("Link_Installer", "Grid").ImageUrl("~/Content/shared/Icons/download.png");
+                       children.Add().Text("PFD Viewer").Action("PDFViewer", "FileManagerData").ImageUrl("~/Content/shared/Icons/pdf.png");
+                       children.Add().Text("Image Editor").Action("ImageEditor", "FileManagerData").ImageUrl("~/Content/shared/Icons/picture.png");
+                       children.Add().Text("Signature").Action("Sign_Pdf_Document", "Signature").ImageUrl("~/Content/shared/Icons/signature2.png");
+                   });
+                items.Add().Text("Name : " + cookieName).HtmlAttributes(new { id = "cookiename" });
+                items.Add().Text("Sign Out").Action("SignOut","Login").HtmlAttributes(new { id = "signout" }).ContentHtmlAttributes(new { @style = "float: right;" });
+            })
+        )
+    </div>
+
+    <main>
+        <div class="container-fluid">
+            @RenderBody()
+        </div>
+    </main>
+
+    <footer class="footer text-center d-flex align-items-center">
+        <div class="container-fluid">
+            <p class="text-muted">Copyright © @DateTime.Now.Year Developed by Nathapon :)</p>
+        </div>
+    </footer>
+
+    <script>
+        $(document).ready(function () {
+            $("#responsive-panel").kendoResponsivePanel({
+                breakpoint: 768,
+                autoClose: false,
+                orientation: "top"
+            });
+        });
+        function onclick(e) {
+            $("#responsive-panel").getKendoResponsivePanel().toggle();
+        }
+    </script>
+</body>
+</html>

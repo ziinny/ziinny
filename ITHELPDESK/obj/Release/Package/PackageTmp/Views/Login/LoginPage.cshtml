@@ -1,0 +1,37 @@
+﻿
+@{
+    Layout = null;
+}
+<link href="~/Content/LoginPage.css?v=2" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<title>IT KSP Login</title>
+<div class="animated bounceInDown">
+    <div class="container">
+        <img src="~/Content/shared/Images/Logo1spoon.png" />
+        <span class="error animated tada" id="msg"></span>
+        <span class="error animated tada" id="msgError"></span>
+        <form action="@Url.Action("LoginPage", "Login")" method="post" name="loginform" class="box" onsubmit="return checkStuff()">
+            <h4>KSP<span> IT Admin</span></h4>
+            <h5>Sign in to your account.</h5>
+            <input type="text" name="Username" placeholder="Username" autocomplete="off" value="@Session["username"]">
+            <i class="typcn typcn-eye" id="eye"></i>
+            <input type="password" name="Password" placeholder="Passsword" id="pwd" autocomplete="off" value="@Session["password"]">
+            <input type="submit" value="Sign in" class="btn1">
+        </form>
+    </div>
+    <div class="footer">
+        <span>Made with <i class="fa fa-brands fa-facebook"></i> <a href="#" /><a href="https://fb.com/zziinnyy" target="_blank">By Nathapon</a></span>
+    </div>
+</div>
+
+<script src="~/Scripts/loginPageJS.js"></script>
+
+@if (ViewBag.msgError != null)
+{
+    <script>
+            var msgError = document.getElementById('msgError');
+            msgError.style.display = 'block';
+            msgError.innerHTML = '@ViewBag.msgError';
+    </script>
+}

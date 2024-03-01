@@ -1,0 +1,102 @@
+﻿@using Kendo.Mvc.UI
+@{
+    ViewBag.Title = "FilesManage";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+
+<br />
+
+<h2>Files Manage</h2>
+
+
+@(Html.Kendo().FileManager().Name("filemanager")
+    .DataSource(ds =>
+    {
+        ds.Read(operation => operation
+        .Type(HttpVerbs.Post)
+        .Action("Read", "FileManagerData")
+    );
+        ds.Destroy(operation => operation
+            .Type(HttpVerbs.Post)
+            .Action("Destroy", "FileManagerData")
+        );
+        ds.Create(operation => operation
+            .Type(HttpVerbs.Post)
+            .Action("Create", "FileManagerData")
+        );
+        ds.Update(operation => operation
+            .Type(HttpVerbs.Post)
+            .Action("Update", "FileManagerData")
+        );
+    })
+    .UploadUrl("Upload", "FileManagerData")
+    .Toolbar(tb => tb.Items(items =>
+    {
+        items.Add("createFolder");
+        items.Add("upload");
+        items.Add("sortDirection");
+        items.Add("sortField");
+        items.Add("changeView");
+        items.Add("spacer");
+        items.Add("details");
+        items.Add("search");
+    }))
+    .ContextMenu(context => context.Items(items =>
+    {
+        items.Add("download").Command("DownloadCommand").Text("Download").SpriteCssClass("k-icon k-i-download");
+        items.Add("custom").Command("MyCustomCommand").Text("Get Info").SpriteCssClass("k-icon k-i-info");
+        items.Add("rename");
+        if (ViewBag.userpermission)
+        {
+            items.Add("delete");
+        }
+    }))
+)
+
+<script>
+    $(document).ready(function () {
+        var filemanager = $("#filemanager").getKendoFileManager();
+
+        filemanager.executeCommand({ command: "TogglePaneCommand", options: { type: "preview" } });
+        filemanager.toolbar.fileManagerDetailsToggle.switchInstance.toggle();
+
+        var filemanagerNS = kendo.ui.filemanager;
+
+        filemanagerNS.commands.DownloadCommand = filemanagerNS.FileManagerCommand.extend({
+            exec: function () {
+                var that = this,
+                    filemanager = that.filemanager, // get the kendo.ui.FileManager instance
+                    options = that.options, // get the options passed through the tool
+                    target = options.target // options.target is available only when command is executed from the context menu
+                selectedFiles = filemanager.getSelected(); // get the selected files
+
+                var path = selectedFiles[0].path;
+
+                //window.location = link;
+                window.location = '/ITSUPPORT/FileManagerData/DownloadFile?filename=' + path;
+
+            }
+        });
+
+        filemanagerNS.commands.MyCustomCommand = filemanagerNS.FileManagerCommand.extend({
+            exec: function () {
+                var that = this,
+                    filemanager = that.filemanager,
+                    options = that.options,
+                    target = options.target,
+                    selectedFiles = filemanager.getSelected();
+                var totalSize = 0;
+                selectedFiles.forEach(function (fileEntry) {
+                    totalSize += fileEntry.size;
+                });
+
+                kendo.alert('Selected files size: ' + kendo.getFileSizeMessage(totalSize))
+            }
+        });
+
+        var searchInput = $("[data-command='SearchCommand']");
+
+        if (searchInput)
+            searchInput.attr("data-options", "{ \"field\": \"name\", \"operator\": \"contains\" }");
+    })
+</script>

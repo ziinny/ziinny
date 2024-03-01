@@ -1,0 +1,56 @@
+﻿@model IEnumerable<ITHELPDESK.Controllers.GridController.MyLink>
+@{
+    ViewBag.Title = "Link Installer";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+<br />
+
+<h2>Installer</h2>
+
+<div>
+    @(Html.Kendo().Grid(Model)
+    .Name("Grid")
+    .ToolBar(t =>
+    {
+        t.Search();
+        t.Excel();
+    })
+    .Search(s =>
+    {
+        s.Field(o => o.ProgramName, "Contains");
+    })
+    .Excel(excel => excel
+    .FileName("Link Installer.xlsx")
+    .Filterable(true)
+    .ProxyURL(Url.Action("Excel_Export_Save", "Grid")))
+    .Columns(columns =>
+    {
+        columns.Bound(p => p.ProgramName).Title("Program Name").Width(300);
+        columns.Bound(p => p.URLName).Title("URL Link").ClientTemplate("<a href='#=data.URLName#' target='_blank'>#=data.URLName#</a>");
+    })
+    .HtmlAttributes(new { style = "height: 550px;" })
+    .Pageable( pageable => pageable
+        .Input(true)
+        .Numeric(false)
+     )
+    .Sortable()
+    .Scrollable(scr=>scr.Height(430))
+    .Filterable()
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .PageSize(20)
+        .ServerOperation(false)
+     )
+)
+</div>
+
+
+<style>
+    .k-grid .k-grid-search {
+        display: flex;
+        margin-left: auto;
+        margin-right: 0;
+        width: 200px;
+    }
+</style>

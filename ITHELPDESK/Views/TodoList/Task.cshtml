@@ -1,0 +1,349 @@
+﻿@{
+    ViewBag.Title = "TaskBoard";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+
+}
+<style>
+    .demo-section.wide {
+        max-width: 1025px;
+    }
+
+    .template-container {
+        padding: 2px 10px;
+        background-color: #3d4349;
+    }
+
+        .template-container img {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            margin-left: -10px;
+        }
+
+    .column-status {
+        padding-top: 5px;
+    }
+
+    .column-text {
+        padding-left: 10px;
+    }
+
+    .column-template-container,
+    .template-header {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .k-taskboard-column-cards {
+        gap: 0.3rem 0;
+    }
+
+    .column-buttons {
+        margin-left: auto;
+        margin-right: 0;
+        padding-right: 5px;
+    }
+
+    .template-menu {
+        margin-left: auto;
+        margin-right: 0;
+    }
+
+    .template-title {
+        font-size: 14px;
+        color: white;
+        word-wrap: break-word;
+    }
+
+    .k-taskboard-drag-hint {
+        font: 400 14px Arial,Helvetica,sans-serif;
+    }
+
+    .template-container img {
+        margin: 10px auto 10px 150px;
+    }
+
+    .k-toolbar .k-input {
+        width: 350px;
+    }
+
+    .container {
+        max-width: 1290px;
+    }
+
+    p {
+        color: white;
+    }
+
+    .k-tooltip {
+        background-color: black;
+        opacity: 0.9 !important;
+        color: white !important;
+        padding: 20px;
+    }
+
+    tooltip-template-container {
+        padding: 10px;
+    }
+
+
+    .title {
+        font-family: 'Space Mono', monospace;
+        font-size: 3rem;
+        text-transform: uppercase;
+        letter-spacing: 5px;
+        color: #fffafa;
+        padding: 0 clamp(1rem, 2vw, 3rem);
+        border-radius: 10px;
+        width: auto;
+        position: fixed;
+        z-index: 1;
+        top: 7%;
+        left: 40%;
+        cursor: default;
+        transition: background-color 0.3s ease-in-out;
+    }
+
+    .scrolled{
+        background-color: whitesmoke;
+        color: black;
+        opacity: 0.8;
+    }
+
+
+    @@media only screen and (max-width: 1365px) {
+        .k-taskboard-column {
+            width: 300px !important;
+        }
+
+        .container {
+            max-width: 980px;
+        }
+
+        .template-container img {
+            margin: 10px auto 10px 110px;
+        }
+    }
+</style>
+
+<div class="container">
+    <h1 data-value="@ViewBag.ComputerName" class="title">@ViewBag.ComputerName</h1>
+
+
+
+    <script id="column-template" type="text/x-kendo-template">
+        <span class="column-template-container">
+            <span class="column-status">
+                # if (Status == "todo" || Status == "inProgress" || Status == "done") { #
+                <span class="column-badge" id="badge-#= Status #">0</span>
+                # } else { #
+                <span class="column-badge">0</span>
+                # } #
+                <span class="column-text">#: Text #</span>
+            </span>
+            @*<span class="column-buttons">#= buttons #</span>*@
+        </span>
+    </script>
+
+    <script id="card-template" type="text/x-kendo-template">
+        <div class="template-container">
+            <span class="template-header">
+                <span class="template-title">#: Description #</span>
+                @*<span class="template-menu">#=cardMenuButton#</span>*@
+            </span>
+            # if (Image != null) { #
+            <img alt="KSP TaskBoard #: Description #" src="@Url.Content("~/Content/web/taskboard/" + "#= Image #")" style="height:40px; width: 40px;">
+            # }else{ #
+            <img alt="KSP TaskBoard #: Description #" src="@Url.Content("~/Content/web/taskboard/NoImg.png")" style="height:40px; width: 40px;">
+            # } #
+        </div>
+    </script>
+
+
+    <script id="tooltip-template" type="text/x-kendo-template">
+        <div class="tooltip-template-container">
+            # var card = target.closest(".k-taskboard-card"); #
+
+            # var taskBoard = $("\\#taskBoard").data("kendoTaskBoard") #
+            # var item = taskBoard.dataItem(card); #
+
+            <p><u><b>#: item.Title#</b></u></p>
+            <p><u>#: item.Description#</u></p>
+            <p> User Create : #: item.userCreate #</p>
+            <p> User Edit : #: item.userEdit #</p>
+            @*<p>#: kendo.toString( item.dateCreate, "MMMM dd, h:mm tt")# - #:kendo.toString( item.dateEdit, "MMMM dd, h:mm tt")#</p>*@
+        </div>
+    </script>
+
+    @(Html.Kendo().TaskBoard()
+        .Name("taskBoard")
+        .Toolbar(t => t.Items(items =>
+        {
+            items.Add().Type("button").Command("gotoIndex").Text("Index Page").Icon("k-icon k-i-chevron-left");
+            items.Add().Type("spacer");
+            items.Add().Name("search");
+        }))
+        .Messages(m => m.Search("Search .."))
+        .ColumnSettings(s =>
+        {
+            s.TemplateId("column-template");
+            s.Width("400px");
+        })
+        .Columns(c =>
+        {
+            c.Add().Text("To-do").Status("todo");
+            c.Add().Text("In Progress").Status("inProgress");
+            c.Add().Text("Done").Status("done");
+        })
+        .DataCategoryField("Color")
+        .DataDescriptionField("Description")
+        .DataStatusField("Status")
+        .DataTitleField("Title")
+        .DataOrderField("Order")
+        .TemplateId("card-template")
+        .BindTo((IEnumerable<ITHELPDESK.Controllers.TodoListController.CardViewModel>)ViewBag.Cards)
+        .Height("auto")
+        .Events(ev => ev.DataBound("onDataBound").ColumnsDataBound("onColumnsDataBound").Change("onChange"))
+    )
+
+
+    @(Html.Kendo().Tooltip()
+        .For("#taskBoard")
+        .Filter(".k-taskboard-card")
+        .ContentTemplateId("tooltip-template")
+        .Position(TooltipPosition.Right)
+    )
+</div>
+
+<script>
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let interval = null;
+
+    document.querySelector('.title').onmouseover = (event) => {
+        let iteration = 0;
+
+        clearInterval(interval);
+
+        interval = setInterval(() => {
+            event.target.innerText = event.target.innerText
+                .split('')
+                .map((letter, index) => {
+                    if (index < iteration) {
+                        return event.target.dataset.value[index];
+                    }
+                    return letters[Math.floor(Math.random() * 26)];
+                })
+                .join('');
+            if (iteration >= event.target.dataset.value.length) {
+                clearInterval(interval);
+            }
+            iteration += 1 / 3;
+        }, 50);
+    };
+
+</script>
+
+<script>
+    async function onChange(e) {
+
+        if (e.action === "receive") {
+
+            if (e.column.Status === 'done') {
+                e.card.Color = 'green';
+            } else if (e.column.Status === 'inProgress') {
+                e.card.Color = 'orange';
+            } else if (e.column.Status === 'todo') {
+                e.card.Color = 'red';
+            }
+
+            const Url = '@Url.Action("EditTask", "TodoList")';
+            await $.ajax({
+                type: 'POST',
+                url: Url,
+                data: { id: e.card.ID, status: e.column.Status, color: e.card.Color },
+                success: function (response) { },
+                error: function (err) { }
+
+            })
+        }
+    }
+
+
+    function onDataBound(e) {
+        setBadgeText()
+    }
+
+    function onColumnsDataBound(e) {
+        setBadgeText()
+    }
+
+    function setBadgeText() {
+        var taskBoard = $("#taskBoard").data("kendoTaskBoard");
+
+        for (var i = 0; i < taskBoard.columns().length; i++) {
+            var status = taskBoard.columnDataItem(taskBoard.columns()[i]).Status;
+
+            if (status == "todo") {
+                var totalToDo = taskBoard.itemsByStatus("todo").length;
+
+                initBadge("todo", "warning", totalToDo);
+            }
+            else if (status == "inProgress") {
+                var totalInProgress = taskBoard.itemsByStatus("inProgress").length;
+
+                initBadge("inProgress", "info", totalInProgress);
+            }
+            else if (status == "done") {
+                var totalDone = taskBoard.itemsByStatus("done").length;
+
+                initBadge("done", "success", totalDone);
+            }
+            else {
+                var column = $(taskBoard.columns()[i]);
+                var totalNoStatus = taskBoard.itemsByColumn(column).length;
+
+                initNoStatusBadge(column, "light", totalNoStatus);
+            }
+        }
+    }
+
+    function initBadge(id, color, totalItems) {
+        $('#badge-' + id).kendoBadge({
+            themeColor: color,
+            shape: 'circle',
+            text: totalItems
+        });
+    }
+
+    function initNoStatusBadge(column, color, totalItems) {
+        var badgeElement = column.find(".column-badge");
+
+        $(badgeElement).kendoBadge({
+            themeColor: color,
+            shape: 'circle',
+            text: totalItems
+        });
+    }
+
+    function gotoIndex(e) {
+        window.location.href = '@Url.Action("Index","TodoList")';
+    }
+</script>
+
+
+<script>
+    kendo.ui.taskboard.commands["gotoIndex"] = kendo.ui.taskboard.Command.extend({
+        exec: function () {
+            window.location.href = '@Url.Action("Index","TodoList")';
+        }
+    });
+
+    window.addEventListener("scroll", function () {
+        var title = document.querySelector(".title");
+        if (window.scrollY > 0) {
+            title.classList.add("scrolled");
+        } else {
+            title.classList.remove("scrolled");
+        }
+    });
+</script>

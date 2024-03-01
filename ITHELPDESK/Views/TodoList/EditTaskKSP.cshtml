@@ -1,0 +1,200 @@
+﻿
+@{
+    ViewBag.Title = "EditTaskKSP";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+
+<style>
+    .task-edit-div {
+        margin: 0 30px 30px 30px;
+        padding: 30px 50px 30px 50px;
+        border: 1px solid white;
+        border-radius: 10px;
+    }
+
+    .task-uploadfile-div {
+        margin: 10px 30px 20px 30px;
+        padding: 10px 50px 30px 50px;
+        border: 1px solid white;
+        border-radius: 10px;
+        height: auto;
+    }
+
+    .k-form .k-form-legend {
+        font-size: 1.5rem;
+        color: #0d6efd;
+    }
+
+    .k-form-clear{
+        visibility: hidden;
+    }
+
+
+    /* drop zone*/
+    .dropZoneElement {
+        position: relative;
+        display: inline-block;
+        background-color: #f8f8f8;
+        border: 1px solid #c7c7c7;
+        width: 230px;
+        height: 110px;
+        text-align: center;
+        border-radius: 5px;
+        margin-left: 20px;
+        background-color: #495057;
+    }
+
+    .textWrapper {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 100%;
+        font-size: 24px;
+        line-height: 1.2em;
+        font-family: Arial,Helvetica,sans-serif;
+        color: #000;
+    }
+
+    .dropImageHereText {
+        color: #c7c7c7;
+        text-transform: uppercase;
+        font-size: 12px;
+    }
+
+    .product {
+        float: left;
+        position: relative;
+        margin: 0 10px 10px 0;
+        padding: 0;
+    }
+
+        .product img {
+            width: 110px;
+            height: 110px;
+        }
+
+    .wrapper:after {
+        content: ".";
+        display: block;
+        height: 0;
+        clear: both;
+        visibility: hidden;
+    }
+</style>
+
+
+<div style="margin: 10px 0 0 30px;">
+    <a href="@Url.Action("TaskManageKSP", "TodoList")" class="k-pager-refresh k-link k-button k-button-solid-base k-button-solid k-button-md k-rounded-md" title="Back to KSP Task"><span class="k-button-icon k-icon k-font-icon k-i-chevron-left"></span></a>
+</div>
+
+<div class="task-uploadfile-div k-form">
+    <fieldset class="k-form-fieldset">
+        <legend class="k-form-legend">Upload File</legend>
+
+        <div class="wide">
+            <div class="wrapper">
+                <div id="products"></div>
+                <div class="dropZoneElement">
+                    <div class="textWrapper">
+                        <p style="color: white;">Change Image</p>
+                        <p class="dropImageHereText">Drop image here to upload</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @(Html.Kendo().Upload()
+        .Name("file")
+        .Async(a => a
+            .Save("CustomDropZone_Save", "TodoList")
+            .Remove("CustomDropZone_Remove", "TodoList")
+            .AutoUpload(true)
+        )
+        .Events(e => e.Success("onSuccess").Upload(@<text>function(e) { e.data = { taskID: $("#TaskID").val() }}</text>))
+        .ShowFileList(false)
+        .DropZone(".dropZoneElement")
+        .Validation(validation => {
+            validation.AllowedExtensions(new string[] { ".jpg", ".jpeg", ".png" });
+            validation.MaxFileSize(20000000);
+        })
+        )
+
+    </fieldset>
+</div>
+<div class="task-edit-div">
+    @(Html.Kendo().Form<ITHELPDESK.Models.TaskModel>()
+    .Name("taskForm")
+    .HtmlAttributes(new { action = "EditTaskKSP", method = "POST" })
+    .Validatable(v =>
+    {
+        v.ValidateOnBlur(true);
+        v.ValidationSummary(vs => vs.Enable(false));
+    })
+    .Items(items =>
+    {
+        items.AddGroup()
+        .Label("Edit Form")
+        .Items(i =>
+        {
+            i.Add().Field(f => f.TaskID).Label(l => l.Text("Task ID :")).Hint("Hint: Task ID can't edit.").Editor(e => { e.TextBox().Placeholder("Please fill task ID...").Readonly(true); });
+            i.Add().Field(f => f.TaskName).Label(l => l.Text("Task Name :")).Editor(e => { e.TextBox().Placeholder("Please fill task name..."); });
+            i.Add().Field(f => f.Description).Label(l => l.Text("Description :")).Editor(e => { e.TextArea().Rows(3).Placeholder("Please fill Description..."); });
+        });
+    })
+    .Events(ev => ev.ValidateField("onFormValidateField").Submit("onFormSubmit"))
+    )
+</div>
+
+
+<script type="text/x-kendo-template" id="template">
+    <div class="product">
+        <img src="../content/web/taskboard/#= name #" alt="#: name # image" />
+    </div>
+</script>
+
+<script>
+    $(document).ready(function () {
+        var template = kendo.template($("#template").html());
+        var initialFiles = [{ name: "NoImg.png" }];
+
+        var hasImg = '@ViewBag.hasImg';
+        if (hasImg != '') {
+            initialFiles = [{ name: hasImg }];
+        }
+
+        $("#products").html(kendo.render(template, initialFiles));
+    });
+
+    function onSuccess(e) {
+        if (e.operation == "upload") {
+            for (var i = 0; i < e.files.length; i++) {
+                var file = e.files[i].rawFile;
+
+                if (file) {
+                    var reader = new FileReader();
+
+                    reader.onloadend = function () {
+                        $("#products").html("");
+                        $("<div class='product'><img src=" + this.result + " /></div>").appendTo($("#products"));
+                    };
+
+                    reader.readAsDataURL(file);
+                }
+            }
+        }
+    }
+
+</script>
+
+<script>
+    function onFormValidateField(e) {
+        $("#validation-success").html("");
+    }
+
+    function onFormSubmit(e) {
+        e.preventDefault();
+
+        $('#taskForm').submit();
+    }
+
+</script>

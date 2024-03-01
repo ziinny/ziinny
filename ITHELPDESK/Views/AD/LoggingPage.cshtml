@@ -1,0 +1,76 @@
+﻿
+@{
+    ViewBag.Title = "Events Viewer";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+
+}
+
+<style>
+    .badge-logging {
+        margin-top: 10px;
+        margin-bottom: 20px;
+        font-size: 25px;
+    }
+
+    .k-grid tr{
+        line-height: 14px;
+    }
+
+</style>
+
+<div class="container">
+    <div class="badge-logging">
+        @(Html.Kendo().Badge()
+    .Name("badge-overlay")
+    .Text("Event Viewer")
+    .ThemeColor(BadgeColor.Secondary)
+    .Rounded(Rounded.Small))
+    </div>
+    <div>
+        @(Html.Kendo().Grid<ITHELPDESK.Entity.tbLoggingADUser>()
+    .Name("LogGrid")
+    .Columns(columns =>
+    {
+        columns.Bound(c => c.taskName).Title("Task Name").Width("25%");
+                
+        columns.Bound(c => c.userName).Title("Username").Width("25%").Media("(min-width: 575px)").HtmlAttributes(new { style = "color : indianred;" });
+        columns.Bound(c => c.submittedBy).Title("Submitted by").Width("25%").HtmlAttributes(new { style = "color : dodgerblue;" });
+        columns.Bound(c => c.submittedDate).Title("Submitted date").Format("{0: dd/MM/yyyy HH:mm:ss}").Groupable(false).Width("25%")
+                .ClientGroupFooterTemplate("Count: #=count#")
+                .ClientFooterTemplate("Total Count: #=count#");
+    })
+    .ToolBar(toolbar =>
+    {
+    toolbar.Template(@<text>
+            <div>
+                <a href="@Url.Action("ADIndex", "AD")" class="k-pager-refresh k-link k-button k-button-solid-base k-button-solid k-button-md k-rounded-md" title="Back to AD"><span class="k-button-icon k-icon k-font-icon k-i-chevron-left"></span></a>
+            </div>
+            <div>
+                <a class="k-grid-excel k-link k-button k-button-solid-base k-button-solid k-button-md k-rounded-md" href="#"><span class="k-icon k-i-excel"></span>Export to Excel</a>
+            </div>
+    </text>);
+    })
+    .LoaderType(GridLoaderType.Skeleton)
+    .Groupable()
+    .Sortable()
+    .Resizable(resizable => resizable.Columns(true))
+    .Selectable(selectable => selectable
+            .Mode(GridSelectionMode.Single)
+            .Type(GridSelectionType.Row))
+    .Excel(excel => excel.FileName("Events_Viewer_Logs.xlsx").AllPages(true))
+    .Pageable(p => p.ButtonCount(5).Refresh(true).PageSizes(new[] { "15", "50", "100", "All" }))
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .ServerOperation(false)
+        .Sort(s => s.Add("submittedDate").Descending())
+        .Aggregates(ag =>
+        {
+            ag.Add(p => p.submittedDate).Min().Max().Count();
+        })
+        .PageSize(15)
+        .Model(model => { model.Id(p => p.Rec); })
+        .Read(read => read.Action("GetLogging", "AD"))
+    )
+    )
+    </div>
+</div>

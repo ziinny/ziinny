@@ -1,0 +1,81 @@
+﻿@model IEnumerable<ITHELPDESK.Models.FilesList>
+@{
+    ViewBag.Title = "Files Repository";
+}
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+<br />
+
+<style>
+    .uploadDIV {
+        width: 50%;
+        margin: 0 auto;
+    }
+
+    .k-dropzone-hint {
+        margin-right: 20px;
+    }
+
+    .text-color-white {
+        color: white;
+    }
+
+    .k-toolbar .k-input {
+        width: 300px;
+    }
+
+    .k-grid .k-command-cell > .k-button{
+        /*background-color: darkred;*/
+    }
+</style>
+
+<h2>Upload Files</h2>
+
+<div class="uploadDIV">
+    @(Html.Kendo().Upload()
+        .Name("files")
+        .Async(a => a
+            .Save("Async_Save", "Upload")
+            .Remove("Async_Remove", "Upload")
+            .AutoUpload(false)
+        ).Events(c => c.Success("onComplete"))
+    )
+</div>
+<br />
+<hr />
+
+<h2>Downloads Files</h2>
+
+<div>
+    @(Html.Kendo().Grid(Model)
+        .Name("Upload")
+        .ToolBar(t => t.Search())
+        .Columns(columns =>
+        {
+            columns.Bound(p => p.FileName).Title("File Name");
+            columns.Bound(c => c.FileName).ClientTemplate(Html.ActionLink("download", "DownloadFile", new { filename = "Name" }).ToHtmlString().Replace("Name", "#=FileName#")).Title("Link");
+            //columns.Bound(c => c.FileName).ClientTemplate(Html.ActionLink("delete", "DeleteFile", new { filename = "Name" }, new { @class="btn btn-danger" }).ToHtmlString().Replace("Name", "#=FileName#")).Title("Link");
+            columns.Command(c => c.Destroy().Text("Delete")).Title("Action");
+        })
+    .HtmlAttributes(new { style = "height: 600px;" })
+    .Editable(e => e.Mode(GridEditMode.PopUp))
+    .Pageable()
+    .Sortable()
+    .Search(s => s.Field(x => x.FileName, "contains"))
+    .Scrollable(scr=>scr.Height(430))
+    .Filterable()
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .PageSize(20)
+        .ServerOperation(false)
+        .Model(model => model.Id(c => c.FileName))
+        .Read(read => read.Action("FilesRepository", "Upload"))
+        .Destroy(update => update.Action("DeleteFile", "Upload"))
+     )
+)
+</div>
+
+<script>
+    function onComplete(e) {
+        //$('#grid').data('kendoGrid').refresh();
+    }
+</script>
